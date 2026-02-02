@@ -9,6 +9,12 @@
 <p>
     <a asp-action="Create">Crear un Usuario</a>
 </p>
+<form asp-controller="Usuarios" asp-action="Index" method="get">
+    <p>
+        <label>Nombre: <input type="text" name="searchString" /></label>
+        <input type="submit" value="Filtrar" />
+    </p>
+</form>
 <table class="table">
     <thead>
         <tr>

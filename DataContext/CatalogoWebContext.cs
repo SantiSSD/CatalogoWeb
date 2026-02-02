@@ -18,6 +18,18 @@ namespace CatalogoWeb.Data
         public DbSet<CatalogoWeb.Models.Rol> Rol { get; set; } = default!;
         public DbSet<CatalogoWeb.Models.Producto> Producto { get; set; } = default!;
         public DbSet<CatalogoWeb.Models.Categoria> Categoria { get; set; } = default!;
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<Producto>()
+                .HasOne(p => p.Categoria)
+                .WithMany(c => c.Productos)
+                .HasForeignKey(p => p.CategoriaId)
+                .OnDelete(DeleteBehavior.Restrict); // comportamiento al borrar (opcional) }
+        }
+
+
     }
 }
+
 

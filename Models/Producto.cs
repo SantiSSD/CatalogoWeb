@@ -14,7 +14,7 @@ namespace CatalogoWeb.Models
         public string ImagenUrl { get; set; }= string.Empty;
 
         public int CategoriaId { get; set; }
-        public Categoria Categoria { get; set; } = null!;
+        public Categoria? Categoria { get; set; } 
 
     }
 }

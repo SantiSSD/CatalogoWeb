@@ -20,10 +20,28 @@ namespace CatalogoWeb.Controllers
         }
 
         // GET: Productos
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? CategoriaId)
         {
-            var catalogoWebContext = _context.Producto.Include(p => p.Categoria);
-            return View(await catalogoWebContext.ToListAsync());
+            if (_context.Producto == null) 
+            {
+                return Problem("No se encontraron Productos");
+            
+            }
+           var categorias = await _context.Categoria.ToListAsync();
+            ViewBag.Categorias = new SelectList(categorias,
+                "Id",
+                "Nombre",
+                CategoriaId);
+
+            var productos = _context.Producto.AsQueryable();
+            if (CategoriaId.HasValue)
+            {
+                productos = productos.Where(p => p.CategoriaId == CategoriaId.Value); 
+            }
+
+            return View(await productos.Include(p => p.Categoria).ToListAsync());
+
+
         }
 
         // GET: Productos/Details/5
@@ -47,8 +65,10 @@ namespace CatalogoWeb.Controllers
 
         // GET: Productos/Create
         public IActionResult Create()
+        
+        
         {
-            ViewData["CategoriaId"] = new SelectList(_context.Set<Categoria>(), "Id", "Id");
+            ViewData["CategoriaId"] = new SelectList(_context.Set<Categoria>(), "Id", "Nombre");
             return View();
         }
 
@@ -65,7 +85,7 @@ namespace CatalogoWeb.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["CategoriaId"] = new SelectList(_context.Set<Categoria>(), "Id", "Id", producto.CategoriaId);
+            ViewData["CategoriaId"] = new SelectList(_context.Set<Categoria>(), "Id", "Nombre", producto.CategoriaId);
             return View(producto);
         }
 
