@@ -4,38 +4,61 @@
     ViewData["Title"] = "Index";
 }
 
-<h1>Index</h1>
+<div class="container mt-4">
+	<div class="d-flex justify-content-between align-items-center mb-4">
+		<h2 class="fw-bold text-dark">Gestión de Roles</h2>
+		<a asp-action="Create" class="btn btn-primary shadow-sm">
+			<i class="bi bi-plus-circle me-1"></i> Nuevo Rol
+		</a>
+	</div>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Nombre)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Descripcion)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Nombre)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Descripcion)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+	<div class="card shadow-sm border-0 mb-4 bg-light">
+		<div class="card-body">
+			<form asp-controller="Rols" asp-action="Index" method="get" class="row g-3 align-items-end">
+			</form>
+		</div>
+	</div>
+
+	<div class="card shadow-sm border-0">
+		<div class="table-responsive">
+			<table class="table table-hover align-middle mb-0">
+				<thead class="bg-primary text-white">
+					<tr>
+						<th>Nombre</th>
+						<th>Descripcion</th>
+					</tr>
+				</thead>
+				<tbody>
+					@foreach (var item in Model)
+					{
+						<tr>
+							<td class="ps-3">
+								<div class="d-flex align-items-center">
+									<div>
+										<div class="fw-bold">@item.Nombre</div>
+									</div>
+								</div>
+							</td>
+							<td>
+								<span class="badge rounded-pill bg-info text-dark">@item.Descripcion</span>
+							</td>
+							<td class="text-center">
+								<div class="btn-group shadow-sm" role="group">
+									<a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning d-inline-flex align-items-center">
+										<i class="bi bi-pencil me-1"></i> Editar
+									</a>
+									<a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info d-inline-flex align-items-center">
+										<i class="bi bi-eye me-1"></i> Detalles
+									</a>
+									<a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger d-inline-flex align-items-center">
+										<i class="bi bi-trash me-1"></i> Eliminar
+									</a>
+								</div>
+							</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>

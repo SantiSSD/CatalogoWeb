@@ -20,9 +20,29 @@ namespace CatalogoWeb.Controllers
         }
 
         // GET: Categorias
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? CategoriaId)
+        
         {
-            return View(await _context.Categoria.ToListAsync());
+            var categoria = await _context.Categoria.ToListAsync();
+            if (categoria == null)
+            {
+                return Problem("No se encontraron Categorias");
+
+            }
+            ViewBag.ListaDeCategorias = new SelectList(categoria,
+                "Id",
+                "Nombre",
+                CategoriaId);
+
+            var CategoriaResultado = categoria.AsQueryable();
+
+            if (CategoriaId.HasValue)
+            {
+
+                CategoriaResultado = CategoriaResultado.Where(c => c.Id == CategoriaId.Value);
+            }
+
+            return View(CategoriaResultado.ToList());
         }
 
         // GET: Categorias/Details/5
