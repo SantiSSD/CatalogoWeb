@@ -20,7 +20,7 @@ namespace CatalogoWeb.Controllers
         }
 
         // GET: Productos
-        public async Task<IActionResult> Index(int? CategoriaId)
+        public async Task<IActionResult> Index(int? CategoriaId, string? SearchString)
         {
             if (_context.Producto == null) 
             {
@@ -37,6 +37,11 @@ namespace CatalogoWeb.Controllers
             if (CategoriaId.HasValue)
             {
                 productos = productos.Where(p => p.CategoriaId == CategoriaId.Value); 
+            }
+            if (!string.IsNullOrEmpty(SearchString))
+            {
+                productos = productos.Where(p => p.Nombre.ToUpper().Contains(SearchString.ToUpper()));
+            
             }
 
             return View(await productos.Include(p => p.Categoria).ToListAsync());

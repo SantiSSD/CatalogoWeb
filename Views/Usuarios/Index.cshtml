@@ -4,62 +4,113 @@
     ViewData["Title"] = "Index";
 }
 
-<h1>Control de Usuarios</h1>
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-dark mb-0">Control de Usuarios</h2>
+            <p class="text-muted small">Gestiona los accesos y perfiles de tu plataforma</p>
+        </div>
+        <a asp-action="Create" class="btn btn-primary shadow-sm rounded-pill px-4">
+            <i class="bi bi-person-plus-fill me-2"></i> Nuevo Usuario
+        </a>
+    </div>
 
-<p>
-    <a asp-action="Create">Crear un Usuario</a>
-</p>
-<form asp-controller="Usuarios" asp-action="Index" method="get">
-    <p>
-        <label>Nombre: <input type="text" name="searchString" /></label>
-        <input type="submit" value="Filtrar" />
-    </p>
-</form>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Nombre)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Email)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.PasswordHash)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Rol)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.FechaRegistro)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Nombre)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Email)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.PasswordHash)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Rol.Id)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.FechaRegistro)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+    <div class="card shadow-sm border-0 mb-4 bg-light">
+        <div class="card-body">
+            <form asp-controller="Usuarios" asp-action="Index" method="get" class="row g-2 align-items-end">
+                <div class="col-md-5">
+                    <label class="form-label fw-bold small">Nombre del Usuario</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+                        <input type="text" name="searchString" class="form-control border-start-0" placeholder="Buscar por nombre..." />
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-dark w-100 shadow-sm">
+                        Filtrar
+                    </button>
+                </div>
+                @if (!string.IsNullOrEmpty(Context.Request.Query["searchString"]))
+                {
+                    <div class="col-md-2">
+                        <a asp-action="Index" class="btn btn-outline-secondary w-100">Limpiar</a>
+                    </div>
+                }
+            </form>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0" style="border-radius: 12px; overflow: hidden;">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-primary text-white">
+                    <tr>
+                        <th class="ps-4">Usuario</th>
+                        <th>Email</th>
+                        <th>Rol Asignado</th>
+                        <th>Registro</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="ps-4">
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-light rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                        <i class="bi bi-person text-primary"></i>
+                                    </div>
+                                    <span class="fw-bold text-dark">@item.Nombre</span>
+                                </div>
+                            </td>
+                            <td class="text-muted">@item.Email</td>
+                            <td>
+                                @if (item.Rol != null)
+                                {
+                                    <span class="badge rounded-pill bg-info text-dark px-3">
+                                        <i class="bi bi-shield-check me-1"></i> @item.Rol.Nombre
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge rounded-pill bg-secondary px-3">Invitado</span>
+                                }
+                            </td>
+                            <td class="small text-muted">
+                                @item.FechaRegistro.ToString("dd/MM/yyyy")
+                            </td>
+                            <td class="text-center">
+                                <div class="btn-group shadow-sm" role="group">
+                                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning d-inline-flex align-items-center">
+                                        <i class="bi bi-pencil me-1"></i> Editar
+                                    </a>
+
+                                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger d-inline-flex align-items-center">
+                                        <i class="bi bi-trash me-1"></i> Eliminar
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Efecto hover suave para las filas */
+    .table-hover tbody tr:hover {
+        background-color: rgba(0, 123, 255, 0.03);
+    }
+    /* Estilo para los encabezados de tabla */
+    thead th {
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        letter-spacing: 0.5px;
+        padding-top: 15px !important;
+        padding-bottom: 15px !important;
+    }
+</style>

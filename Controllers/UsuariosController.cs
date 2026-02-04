@@ -20,20 +20,24 @@ namespace CatalogoWeb.Controllers
         }
 
         // GET: Usuarios
-        public async Task<IActionResult> Index(string searchString)
+        public async Task<IActionResult> Index(string? searchString)
         {
-            if (_context.Usuario == null)
+            var usuario = _context.Usuario;
+            var usuarioQuery = usuario.Include(u => u.Rol).AsQueryable();
+            if (usuario == null)
             {
                 return Problem("la entidad usuario es nulla");
-
             }
 
-            var usuario = from u in _context.Usuario select u;
             if (!string.IsNullOrEmpty(searchString))
             {
-                usuario = usuario.Where(u => u.Nombre.ToUpper().Contains(searchString.ToUpper()));    
+                usuarioQuery = usuarioQuery.Where(u => u.Nombre.ToUpper().Contains(searchString.ToUpper()));
+            
+            
             }
-            return View(await usuario.ToListAsync());
+
+            
+            return View(await usuarioQuery.ToListAsync());
         }
 
         // GET: Usuarios/Details/5
