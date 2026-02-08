@@ -68,8 +68,13 @@
 					<h5 class="card-title h6">@item.Nombre</h5>
 					<p class="text-primary fw-bold fs-5">$ @item.Precio</p>
 
-					<div class="mt-auto">
-						@* El usuario solo ve el botón de detalles o comprar *@
+					<div class="mt-auto d-grid gap-2">
+						<a asp-controller="Carrito"
+						   asp-action="Agregar"
+						   asp-route-id="@item.Id"
+						   class="btn btn-primary">
+							🛒 Agregar al carrito
+						</a>
 						<a asp-controller="Productos" asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-dark w-100">
 							Ver Detalles
 						</a>

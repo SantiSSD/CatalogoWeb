@@ -1,0 +1,51 @@
+﻿@model List<CarritoItem>
+
+<h2>Carrito de Compras</h2>
+@if (!Model.Any())
+{
+	<p>El carrito esta vacio</p>	
+
+}
+
+else
+{
+	<table class="table">
+		<thead>
+			<tr>
+				<th>Producto</th>
+				<th>Precio Unitario</th>
+				<th>Cantidad</th>
+				<th>Total</th>
+				<th>Acciones</th>
+			</tr>
+		</thead>
+		<tbody>
+
+			@foreach (var item in Model)
+			{
+			 <tr>
+
+					<td>@item.NombreProducto</td>
+					<td>@item.PrecioUnitario</td>
+					<td>@item.Cantidad</td>
+					<td>@item.PrecioUnitario</td>
+					<td>
+						<a asp-action="Agregar" asp-route-id="@item.ProductoId" class="btn btn-success btn-sm">+</a>
+						<a asp-action="Restar" asp-route-id="@item.ProductoId" class="btn btn-warning btn-sm">-</a>
+						<a asp-action="Eliminar" asp-route-id="@item.ProductoId" class="btn btn-danger btn-sm">x</a>
+					</td>
+			 </tr>	
+			}
+		<h4>Total : @Model.Sum(i => i.PrecioUnitario * i.Cantidad)</h4>
+
+		</tbody>
+
+
+
+
+
+
+	</table>	
+
+
+}
