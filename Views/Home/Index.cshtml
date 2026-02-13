@@ -69,60 +69,113 @@
 	</div>
 </div>
 
-<div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4">
-	@foreach (var item in Model)
-	{
-		<div class="col">
-			<div class="card h-100 border-0 shadow-sm transition-hover">
-				<img src="@item.ImagenUrl" class="card-img-top p-3" alt="@item.Nombre" style="height: 200px; object-fit: contain;">
-				<div class="card-body d-flex flex-column">
-					<h5 class="card-title h6">@item.Nombre</h5>
-					<p class="text-primary fw-bold fs-5">$ @item.Precio</p>
+<div class="container-fluid mb-4">
+	<form asp-controller="Home" asp-action="Index" method="get" class="row g-2 align-items-end">
 
-					<div class="mt-auto d-grid gap-2">
-						<a asp-controller="Carrito"
-						   asp-action="Agregar"
-						   asp-route-id="@item.Id"
-						   class="btn btn-primary">
-							🛒 Agregar al carrito
-						</a>
-						<a asp-controller="Productos" asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-dark w-100">
-							Ver Detalles
-						</a>
+		<div class="col-auto">
+			<label class="form-label fw-bold small">Categoría</label>
+			<select name="categoriaId" asp-items="ViewBag.Categorias" class="form-select w-auto">
+				<option value="">-- Todas --</option>
+			</select>
+		</div>
+
+		<div class="col-md-4">
+			<label class="form-label fw-bold small">Nombre del Producto</label>
+			<div class="input-group">
+				<span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
+				<input type="text" name="searchString" class="form-control border-start-0" placeholder="¿Qué buscas?" value="@Context.Request.Query["searchString"]" />
+			</div>
+		</div>
+
+		<div class="col-auto d-flex gap-2">
+			<button type="submit" class="btn btn-dark shadow-sm">
+				<i class="bi bi-filter me-1"></i> Filtrar
+			</button>
+
+			@if (!string.IsNullOrEmpty(Context.Request.Query["categoriaId"]) || !string.IsNullOrEmpty(Context.Request.Query["searchString"]))
+			{
+				<a asp-action="Index" class="btn btn-outline-secondary">
+					<i class="bi bi-x-circle me-1"></i> Limpiar
+				</a>
+			}
+		</div>
+
+	</form>
+</div>
+
+@if (Model != null && Model.Any())
+{
+	<div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4">
+
+		@foreach (var item in Model)
+		{
+			<div class="col">
+				<div class="card h-100 border-0 shadow-sm transition-hover">
+					<img src="@item.ImagenUrl" class="card-img-top p-3" alt="@item.Nombre" style="height: 200px; object-fit: contain;">
+					<div class="card-body d-flex flex-column">
+						<h5 class="card-title h6">@item.Nombre</h5>
+						<p class="text-primary fw-bold fs-5">$ @item.Precio</p>
+
+						<div class="mt-auto d-grid gap-2">
+							<a asp-controller="Carrito"
+							   asp-action="Agregar"
+							   asp-route-id="@item.Id"
+							   class="btn btn-primary">
+								🛒 Agregar al carrito
+							</a>
+							<a asp-controller="Productos" asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-dark w-100">
+								Ver Detalles
+							</a>
+						</div>
 					</div>
 				</div>
 			</div>
-		</div>
-	}
-</div>
-
-<style>
-	.transition-hover {
-		transition: transform 0.2s;
-	}
-
-		.transition-hover:hover {
-			transform: translateY(-5px);
 		}
+	</div>
+}
 
-	.flecha-personalizada .carousel-control-prev-icon,
-	.flecha-personalizada .carousel-control-next-icon {
-		filter: invert(1);
-	}
-
-	.carousel-item {
-		height: 600px;
-	}
-
-		.carousel-item img {
-			height: 100%;
-			width: 100%;
-			object-fit: contain;
-		}
-
-		.carousel-indicators [data-bs-target].active
+		else
 		{
-			background-color:blue
-		
+		<div class="text-center py-5 shadow-sm rounded bg-light border">
+			<i class="bi bi-search-heart display-1 text-muted"></i>
+			<h3 class="mt-3">No se encontraron productos</h3>
+			<p class="text-secondary">Prueba ajustando los filtros o buscando otro término.</p>
+
+			@if (!string.IsNullOrEmpty(Context.Request.Query["categoriaId"]) || !string.IsNullOrEmpty(Context.Request.Query["searchString"]))
+			{
+				<a asp-action="Index" class="btn btn-dark mt-2">
+					<i class="bi bi-arrow-left-circle me-1"></i> Ver todo el catálogo
+				</a>
+			}
+		</div>
 		}
-</style>
+
+
+	<style>
+		.transition-hover {
+			transition: transform 0.2s;
+		}
+
+			.transition-hover:hover {
+				transform: translateY(-5px);
+			}
+
+		.flecha-personalizada .carousel-control-prev-icon,
+		.flecha-personalizada .carousel-control-next-icon {
+			filter: invert(1);
+		}
+
+		.carousel-item {
+			height: 600px;
+		}
+
+			.carousel-item img {
+				height: 100%;
+				width: 100%;
+				object-fit: contain;
+			}
+
+		.carousel-indicators [data-bs-target].active {
+			background-color: blue
+		}
+	</style>

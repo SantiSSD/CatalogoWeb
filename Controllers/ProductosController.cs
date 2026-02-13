@@ -33,6 +33,8 @@ namespace CatalogoWeb.Controllers
                 "Nombre",
                 CategoriaId);
 
+          
+
             var productos = _context.Producto.AsQueryable();
             if (CategoriaId.HasValue)
             {
