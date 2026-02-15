@@ -1,51 +1,122 @@
-﻿@model List<CarritoItem>
+﻿
 
-<h2>Carrito de Compras</h2>
-@if (!Model.Any())
-{
-	<p>El carrito esta vacio</p>	
+@model List<CarritoItem>
 
+@{
+    var totalGeneral = Model.Sum(i => i.PrecioUnitario * i.Cantidad);
 }
 
-else
-{
-	<table class="table">
-		<thead>
-			<tr>
-				<th>Producto</th>
-				<th>Precio Unitario</th>
-				<th>Cantidad</th>
-				<th>Total</th>
-				<th>Acciones</th>
-			</tr>
-		</thead>
-		<tbody>
+<div class="container mt-5">
 
-			@foreach (var item in Model)
-			{
-			 <tr>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold">🛒 Carrito de Compras</h2>
+        <a asp-controller="Home" asp-action="Index" class="btn btn-volver">
+            ← Volver a Productos
+        </a>
+        <style>
+         .btn-volver
+         {
+            background-color: deepskyblue;
+            color: white;
+        
+         }
+         .btn-volver:hover
+         {
+                background-color: dodgerblue;
+                color: white;
+            
+         
+         }
 
-					<td>@item.NombreProducto</td>
-					<td>@item.PrecioUnitario</td>
-					<td>@item.Cantidad</td>
-					<td>@item.PrecioUnitario</td>
-					<td>
-						<a asp-action="Agregar" asp-route-id="@item.ProductoId" class="btn btn-success btn-sm">+</a>
-						<a asp-action="Restar" asp-route-id="@item.ProductoId" class="btn btn-warning btn-sm">-</a>
-						<a asp-action="Eliminar" asp-route-id="@item.ProductoId" class="btn btn-danger btn-sm">x</a>
-					</td>
-			 </tr>	
-			}
-		<h4>Total : @Model.Sum(i => i.PrecioUnitario * i.Cantidad)</h4>
+        </style>
+    </div>
 
-		</tbody>
+    @if (!Model.Any())
+    {
+        <div class="card shadow-sm p-4 text-center">
+            <h5 class="text-muted">Tu carrito está vacío</h5>
+            <a asp-controller="Home" asp-action="Index" class="btn btn-primary mt-3">
+                Ir a comprar
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="card shadow-lg">
+            <div class="card-body">
 
+                <table class="table align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Producto</th>
+                            <th>Precio</th>
+                            <th>Cantidad</th>
+                            <th>Total</th>
+                            <th class="text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            var totalItem = item.PrecioUnitario * item.Cantidad;
 
+                            <tr>
+                                <td class="fw-semibold">@item.NombreProducto</td>
 
+                                <td>$ @item.PrecioUnitario</td>
 
+                                <td>
+                                    <span class="badge bg-secondary">
+                                        @item.Cantidad
+                                    </span>
+                                </td>
 
+                                <td class="fw-bold text-success">
+                                    $ @totalItem
+                                </td>
 
-	</table>	
+                                <td class="text-center">
+                                    <a asp-action="Agregar"
+                                       asp-route-id="@item.ProductoId"
+                                       class="btn btn-sm btn-success">
+                                        +
+                                    </a>
 
+                                    <a asp-action="Restar"
+                                       asp-route-id="@item.ProductoId"
+                                       class="btn btn-sm btn-warning">
+                                        −
+                                    </a>
 
-}
+                                    <a asp-action="Eliminar"
+                                       asp-route-id="@item.ProductoId"
+                                       class="btn btn-sm btn-danger">
+                                        🗑
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+                <hr />
+
+                <div class="d-flex justify-content-end">
+                    <h4 class="fw-bold">
+                        Total General:
+                        <span class="text-primary">$ @totalGeneral</span>
+                    </h4>
+                </div>
+                <div class="d-flex justify-content-end mt-3">
+                    <form asp-controller="Carrito" asp-action="FinalizarCompra" method="post">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            Finalizar Compra
+                        </button>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    }
+
+</div>

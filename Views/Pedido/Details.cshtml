@@ -1,0 +1,37 @@
+﻿@model CatalogoWeb.Models.Pedido
+
+<h2>Detalle del Pedido</h2>
+
+<div class="mb-3">
+    <strong>Pedido N°:</strong> @Model.Id <br />
+    <strong>Fecha:</strong> @Model.Fecha.ToString("dd/MM/yyyy") <br />
+    <strong>Total:</strong> $ @Model.Total
+</div>
+
+<h4>Productos</h4>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Producto</th>
+            <th>Precio Unitario</th>
+            <th>Cantidad</th>
+            <th>Subtotal</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var detalle in Model.Detalles)
+        {
+            <tr>
+                <td>@detalle.NombreProducto</td>
+                <td>$ @detalle.PrecioUnitario</td>
+                <td>@detalle.Cantidad</td>
+                <td>$ @detalle.SubTotal</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a asp-action="Index" class="btn btn-secondary">
+    Volver
+</a>

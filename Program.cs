@@ -1,10 +1,13 @@
+using CatalogoWeb.Data;
+using CatalogoWeb.Interfaces;
+using CatalogoWeb.Service;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using CatalogoWeb.Data;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<CatalogoWebContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("CatalogoWebContext") ?? throw new InvalidOperationException("Connection string 'CatalogoWebContext' not found.")));
 
+builder.Services.AddScoped<IPedidoService, PedidoService>();
 // Add services to the container.
 builder.Services.AddSession();
 

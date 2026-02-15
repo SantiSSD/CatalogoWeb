@@ -1,0 +1,30 @@
+﻿@model List<CatalogoWeb.Models.Pedido>
+
+<h2>Listado de Pedidos</h2>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Fecha</th>
+            <th>Total</th>
+            <th>Acción</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var pedido in Model)
+        {
+            <tr>
+                <td>@pedido.Id</td>
+                <td>@pedido.Fecha.ToString("dd/MM/yyyy")</td>
+                <td>$ @pedido.Total</td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@pedido.Id"
+                       class="btn btn-primary btn-sm">
+                        Ver detalle
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

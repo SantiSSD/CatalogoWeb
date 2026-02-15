@@ -1,5 +1,8 @@
 ﻿using CatalogoWeb.Data;
+using CatalogoWeb.Interfaces;
 using CatalogoWeb.Models;
+using CatalogoWeb.Models.Dtos;
+using CatalogoWeb.Service;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.ComponentModel;
@@ -11,13 +14,39 @@ namespace CatalogoWeb.Controllers
     {
         private readonly CatalogoWebContext _context;
         private const string CarritoSessionKey = "Carrito";
+        private readonly IPedidoService _pedidoService;
 
-
-        public CarritoController(CatalogoWebContext context)
+        public CarritoController(CatalogoWebContext context, IPedidoService pedidoService)
         {
             _context = context;
+            _pedidoService = pedidoService;
         }
 
+
+
+        [HttpPost]
+        public async Task<IActionResult> FinalizarCompra() 
+        {
+            var carrito = ObtenerCarrito();
+
+            if(carrito == null || !carrito.Any())
+                return RedirectToAction("Index");
+            var dto = new CrearPedidoDto
+            {
+                Items = carrito.Select(c => new ItemPedidoDto
+                {
+                    ProductoId = c.ProductoId,
+                    Cantidad = c.Cantidad,
+
+                }).ToList()
+            };
+
+            var pedidoId = await _pedidoService.CrearPedidoAsync(dto);
+            HttpContext.Session.Remove(CarritoSessionKey);
+
+            return RedirectToAction("CompraExitosa", "Pedido", new {id = pedidoId });
+        
+        }
         public IActionResult Index()
         {
             var carrito = ObtenerCarrito();
@@ -46,7 +75,36 @@ namespace CatalogoWeb.Controllers
             GuardarCarrito(carrito);
             return RedirectToAction("Index");
         }
+        public IActionResult Restar(int id)
+        {
+            var carrito = ObtenerCarrito();
+            var item = carrito.FirstOrDefault(c => c.ProductoId == id);
 
+            if (item != null)
+            {
+                if (item.Cantidad > 1)
+                {
+
+                    item.Cantidad--;
+                }
+
+                else
+                {
+                    carrito.Remove(item);
+                }
+            }
+            GuardarCarrito(carrito);
+            return RedirectToAction("Index");
+        }
+        public IActionResult Eliminar(int id) 
+        {
+
+            var carrito = ObtenerCarrito();
+            var item = carrito.FirstOrDefault(c => c.ProductoId == id);
+            carrito.Remove(item);
+            GuardarCarrito(carrito);
+            return RedirectToAction("Index");
+        }
 
 
         private List<CarritoItem> ObtenerCarrito()
