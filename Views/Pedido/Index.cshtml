@@ -1,30 +1,79 @@
-﻿@model List<CatalogoWeb.Models.Pedido>
+@model List<CatalogoWeb.Models.Pedido>
 
-<h2>Listado de Pedidos</h2>
+@{
+    ViewData["Title"] = "Pedidos";
+}
 
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>Id</th>
-            <th>Fecha</th>
-            <th>Total</th>
-            <th>Acción</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var pedido in Model)
-        {
-            <tr>
-                <td>@pedido.Id</td>
-                <td>@pedido.Fecha.ToString("dd/MM/yyyy")</td>
-                <td>$ @pedido.Total</td>
-                <td>
-                    <a asp-action="Details" asp-route-id="@pedido.Id"
-                       class="btn btn-primary btn-sm">
-                        Ver detalle
-                    </a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+<div class="container mt-5">
+    <h2 class="mb-4">Listado de Pedidos</h2>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">No hay pedidos registrados</div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover table-bordered">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Id</th>
+                        <th>Fecha</th>
+                        <th>Cliente</th>
+                        <th>Ciudad</th>
+                        <th>Total</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var pedido in Model)
+                    {
+                        <tr>
+                            <td><strong>#@pedido.Id</strong></td>
+                            <td>@pedido.Fecha.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td>@pedido.Nombre</td>
+                            <td>@pedido.Ciudad</td>
+                            <td class="text-success fw-bold">$ @pedido.Total</td>
+                            <td>
+                                @switch (pedido.Estado)
+                                {
+                                    case EstadoPedido.Pendiente:
+                                        <span class="badge bg-warning text-dark">Pendiente</span>
+                                        break;
+                                    case EstadoPedido.Pagado:
+                                        <span class="badge bg-success">Pagado</span>
+                                        break;
+                                    case EstadoPedido.PagoRechazado:
+                                        <span class="badge bg-danger">Pago Rechazado</span>
+                                        break;
+                                    case EstadoPedido.EnPreparacion:
+                                        <span class="badge bg-info">En Preparación</span>
+                                        break;
+                                    case EstadoPedido.Enviado:
+                                        <span class="badge bg-primary">Enviado</span>
+                                        break;
+                                    case EstadoPedido.Entregado:
+                                        <span class="badge bg-secondary">Entregado</span>
+                                        break;
+                                    case EstadoPedido.Completado:
+                                        <span class="badge bg-dark">Completado</span>
+                                        break;
+                                    case EstadoPedido.Cancelado:
+                                        <span class="badge bg-danger">Cancelado</span>
+                                        break;
+                                }
+                            </td>
+                            <td>
+                                <a asp-action="Details" asp-route-id="@pedido.Id"
+                                   class="btn btn-primary btn-sm">
+                                    Ver detalle
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

@@ -1,4 +1,4 @@
-﻿using CatalogoWeb.Data;
+using CatalogoWeb.Data;
 using CatalogoWeb.Interfaces;
 using CatalogoWeb.Models;
 using CatalogoWeb.Models.Dtos;
@@ -22,31 +22,95 @@ namespace CatalogoWeb.Controllers
             _pedidoService = pedidoService;
         }
 
-
+        public IActionResult Checkout()
+        {
+            var carrito = ObtenerCarrito();
+            if (carrito == null || !carrito.Any())
+            {
+                return RedirectToAction("Index");
+            }
+            return View(carrito);
+        }
 
         [HttpPost]
-        public async Task<IActionResult> FinalizarCompra() 
+        public async Task<IActionResult> FinalizarCompra(
+            string Nombre, string Direccion, string Telefono, 
+            string Ciudad, string CodigoPostal, string MetodoPago,
+            string NumeroTarjeta, string MesExpiracion, string AnoExpiracion,
+            string CVV, string NombreTitular)
         {
             var carrito = ObtenerCarrito();
 
-            if(carrito == null || !carrito.Any())
+            if (carrito == null || !carrito.Any())
                 return RedirectToAction("Index");
+
             var dto = new CrearPedidoDto
             {
                 Items = carrito.Select(c => new ItemPedidoDto
                 {
                     ProductoId = c.ProductoId,
                     Cantidad = c.Cantidad,
-
-                }).ToList()
+                }).ToList(),
+                Nombre = Nombre,
+                Direccion = Direccion,
+                Telefono = Telefono,
+                Ciudad = Ciudad,
+                CodigoPostal = CodigoPostal
             };
 
             var pedidoId = await _pedidoService.CrearPedidoAsync(dto);
+
+            var datosPago = new DatosPagoDto
+            {
+                MetodoPago = MetodoPago,
+                NumeroTarjeta = NumeroTarjeta ?? string.Empty,
+                MesExpiracion = MesExpiracion ?? string.Empty,
+                AnoExpiracion = AnoExpiracion ?? string.Empty,
+                CVV = CVV ?? string.Empty,
+                NombreTitular = NombreTitular ?? string.Empty
+            };
+
+            var resultado = await _pedidoService.ProcesarPagoAsync(pedidoId, datosPago);
+
             HttpContext.Session.Remove(CarritoSessionKey);
 
-            return RedirectToAction("CompraExitosa", "Pedido", new {id = pedidoId });
-        
+            if (resultado.Exito)
+            {
+                return RedirectToAction("CompraExitosa", "Pedido", new { id = pedidoId });
+            }
+            else
+            {
+                return RedirectToAction("CompraFallida", "Pedido", new { id = pedidoId, error = resultado.MensajeError });
+            }
         }
+
+        [HttpPost]
+        public async Task<IActionResult> ReintentarPago(int pedidoId, string MetodoPago,
+            string NumeroTarjeta, string MesExpiracion, string AnoExpiracion,
+            string CVV, string NombreTitular)
+        {
+            var datosPago = new DatosPagoDto
+            {
+                MetodoPago = MetodoPago,
+                NumeroTarjeta = NumeroTarjeta ?? string.Empty,
+                MesExpiracion = MesExpiracion ?? string.Empty,
+                AnoExpiracion = AnoExpiracion ?? string.Empty,
+                CVV = CVV ?? string.Empty,
+                NombreTitular = NombreTitular ?? string.Empty
+            };
+
+            var resultado = await _pedidoService.ProcesarPagoAsync(pedidoId, datosPago);
+
+            if (resultado.Exito)
+            {
+                return RedirectToAction("CompraExitosa", "Pedido", new { id = pedidoId });
+            }
+            else
+            {
+                return RedirectToAction("CompraFallida", "Pedido", new { id = pedidoId, error = resultado.MensajeError });
+            }
+        }
+
         public IActionResult Index()
         {
             var carrito = ObtenerCarrito();

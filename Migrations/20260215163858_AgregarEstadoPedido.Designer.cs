@@ -4,6 +4,7 @@ using CatalogoWeb.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CatalogoWeb.Migrations
 {
     [DbContext(typeof(CatalogoWebContext))]
-    partial class CatalogoWebContextModelSnapshot : ModelSnapshot
+    [Migration("20260215163858_AgregarEstadoPedido")]
+    partial class AgregarEstadoPedido
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -51,73 +54,17 @@ namespace CatalogoWeb.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Ciudad")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("CodigoPostal")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Direccion")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int>("Estado")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("Fecha")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime?>("FechaEmailConfirmacion")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("FechaEmailEntrega")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("FechaEmailEnvio")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("FechaEmailValoracion")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("FechaEnvio")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("FechaNotificacionVendedor")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("FechaPago")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("MensajeErrorPago")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("MetodoPago")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Nombre")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("NumeroTracking")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Telefono")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<decimal>("Total")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int?>("UsuarioId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("UsuarioId");
 
                     b.ToTable("Pedido");
                 });
@@ -247,15 +194,6 @@ namespace CatalogoWeb.Migrations
                     b.HasIndex("RolId");
 
                     b.ToTable("Usuario");
-                });
-
-            modelBuilder.Entity("CatalogoWeb.Models.Pedido", b =>
-                {
-                    b.HasOne("CatalogoWeb.Models.Usuario", "Usuario")
-                        .WithMany()
-                        .HasForeignKey("UsuarioId");
-
-                    b.Navigation("Usuario");
                 });
 
             modelBuilder.Entity("CatalogoWeb.Models.PedidoDetalle", b =>

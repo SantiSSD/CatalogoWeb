@@ -1,0 +1,104 @@
+@model Pedido
+
+@{
+    ViewData["Title"] = "Reintentar Pago";
+}
+
+<div class="container mt-5">
+    <h2 class="mb-4">Reintentar Pago - Pedido #@Model.Id</h2>
+
+    <div class="row">
+        <div class="col-md-7">
+            <div class="card shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Datos de Pago</h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="ReintentarPago" method="post">
+                        <input type="hidden" name="pedidoId" value="@Model.Id" />
+
+                        <div class="mb-3">
+                            <label class="form-label">Método de Pago</label>
+                            <select class="form-select" name="MetodoPago" id="metodoPago" required>
+                                <option value="">Seleccionar...</option>
+                                <option value="TarjetaCredito">Tarjeta de Crédito</option>
+                                <option value="TarjetaDebito">Tarjeta de Débito</option>
+                                <option value="PayPal">PayPal</option>
+                            </select>
+                        </div>
+
+                        <div id="datosTarjeta">
+                            <div class="mb-3">
+                                <label class="form-label">Número de Tarjeta</label>
+                                <input type="text" class="form-control" name="NumeroTarjeta" placeholder="1234 5678 9012 3456" maxlength="19" />
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Mes</label>
+                                    <select class="form-select" name="MesExpiracion">
+                                        <option value="">MM</option>
+                                        @for (int m = 1; m <= 12; m++)
+                                        {
+                                            <option value="@m.ToString("D2")">@m.ToString("D2")</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Año</label>
+                                    <select class="form-select" name="AnoExpiracion">
+                                        <option value="">AA</option>
+                                        @for (int y = DateTime.Now.Year; y <= DateTime.Now.Year + 10; y++)
+                                        {
+                                            <option value="@y">@y</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">CVV</label>
+                                    <input type="text" class="form-control" name="CVV" placeholder="123" maxlength="4" />
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Nombre del Titular</label>
+                                <input type="text" class="form-control" name="NombreTitular" />
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-success w-100 btn-lg">
+                            Pagar Ahora
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-5">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Resumen</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Pedido:</strong> #@Model.Id</p>
+                    <p><strong>Fecha:</strong> @Model.Fecha.ToString("dd/MM/yyyy")</p>
+                    <hr />
+                    <p class="h4 text-success"><strong>Total: $ @Model.Total</strong></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById('metodoPago').addEventListener('change', function() {
+            var datosTarjeta = document.getElementById('datosTarjeta');
+            if (this.value === 'TarjetaCredito' || this.value === 'TarjetaDebito') {
+                datosTarjeta.style.display = 'block';
+            } else {
+                datosTarjeta.style.display = 'none';
+            }
+        });
+    </script>
+}

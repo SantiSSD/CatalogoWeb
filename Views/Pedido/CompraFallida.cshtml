@@ -1,0 +1,43 @@
+@model Pedido
+
+@{
+    ViewData["Title"] = "Pago Rechazado";
+    var error = ViewBag.Error as string ?? "El pago fue rechazado";
+}
+
+<div class="container mt-5">
+    <div class="alert alert-danger text-center">
+        <h2 class="alert-heading">❌ Pago Rechazado</h2>
+        <p class="mb-0">@error</p>
+    </div>
+
+    <div class="card shadow-sm mt-4">
+        <div class="card-header bg-danger text-white">
+            <h5 class="mb-0">Detalles del Pedido #@Model.Id</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>Fecha:</strong> @Model.Fecha.ToString("dd/MM/yyyy HH:mm")</p>
+                    <p><strong>Estado:</strong> <span class="badge bg-danger">Pago Rechazado</span></p>
+                    <p><strong>Total:</strong> $ @Model.Total</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Dirección de envío:</strong></p>
+                    <p>@Model.Nombre</p>
+                    <p>@Model.Direccion, @Model.Ciudad @Model.CodigoPostal</p>
+                    <p>Tel: @Model.Telefono</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center mt-4">
+        <a asp-action="ReintentarPagoForm" asp-route-id="@Model.Id" class="btn btn-primary btn-lg">
+            Reintentar Pago
+        </a>
+        <a asp-controller="Home" asp-action="Index" class="btn btn-secondary btn-lg ms-2">
+            Volver al Inicio
+        </a>
+    </div>
+</div>
