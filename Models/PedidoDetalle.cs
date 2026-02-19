@@ -1,4 +1,4 @@
-﻿namespace CatalogoWeb.Models
+namespace CatalogoWeb.Models
 {
     public class PedidoDetalle
     {
@@ -6,8 +6,9 @@
         public int PedidoId { get; set; }
         public Pedido Pedido { get; set; }
 
-        public string NombreProducto { get; set; }
-        public string DescripcionProducto { get; set; }
+        public int ProductoId { get; set; }
+        public string NombreProducto { get; set; } = string.Empty;
+        public string DescripcionProducto { get; set; } = string.Empty;
 
         public decimal PrecioUnitario { get; set; }
 

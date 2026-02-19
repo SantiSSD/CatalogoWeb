@@ -24,21 +24,4 @@ namespace CatalogoWeb.Interfaces
         Task<int> EnviarEmailEntrega(int pedidoId);
         Task<int> EnviarEmailValoracion(int pedidoId);
     }
-
-    public class ResultadoPagoDto
-    {
-        public bool Exito { get; set; }
-        public string? MensajeError { get; set; }
-        public int? PedidoId { get; set; }
-    }
-
-    public class DatosPagoDto
-    {
-        public string MetodoPago { get; set; } = string.Empty;
-        public string NumeroTarjeta { get; set; } = string.Empty;
-        public string MesExpiracion { get; set; } = string.Empty;
-        public string AnoExpiracion { get; set; } = string.Empty;
-        public string CVV { get; set; } = string.Empty;
-        public string NombreTitular { get; set; } = string.Empty;
-    }
 }

@@ -57,6 +57,7 @@ namespace CatalogoWeb.Service
                 }
                 var detalle = new PedidoDetalle
                 {
+                    ProductoId = producto.Id,
                     NombreProducto = producto.Nombre,
                     PrecioUnitario = producto.Precio,
                     Cantidad = item.Cantidad,
@@ -76,7 +77,10 @@ namespace CatalogoWeb.Service
 
         public async Task<ResultadoPagoDto> ProcesarPagoAsync(int pedidoId, DatosPagoDto datosPago)
         {
-            var pedido = await _context.Pedido.FindAsync(pedidoId);
+            var pedido = await _context.Pedido
+                .Include(p => p.Detalles)
+                .FirstOrDefaultAsync(p => p.Id == pedidoId);
+                
             if (pedido == null)
                 return new ResultadoPagoDto { Exito = false, MensajeError = "Pedido no encontrado" };
             if (pedido.Estado != EstadoPedido.Pendiente && pedido.Estado != EstadoPedido.PagoRechazado)
@@ -86,6 +90,16 @@ namespace CatalogoWeb.Service
 
             if (resultadoGateway.Exito)
             {
+                foreach (var detalle in pedido.Detalles)
+                {
+                    var producto = await _context.Producto.FindAsync(detalle.ProductoId);
+                    if (producto != null)
+                    {
+                        producto.Stock -= detalle.Cantidad;
+                        if (producto.Stock < 0) producto.Stock = 0;
+                    }
+                }
+
                 pedido.Estado = EstadoPedido.Pagado;
                 pedido.FechaPago = DateTime.Now;
                 pedido.MetodoPago = datosPago.MetodoPago;
