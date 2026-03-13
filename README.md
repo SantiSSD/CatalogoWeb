@@ -1,41 +1,41 @@
 # CatalogoWeb
 
-E-commerce web application built with ASP.NET Core MVC for product catalog management and order processing.
+Aplicación web de comercio electrónico construida con ASP.NET Core MVC para la gestión de catálogos de productos y procesamiento de pedidos.
 
-## Tech Stack
+## Stack Tecnológico
 
-- **Framework**: .NET 10.0
+- **Marco de trabajo**: .NET 10.0
 - **ORM**: Entity Framework Core 10.0.2
-- **Database**: SQL Server
-- **Frontend**: ASP.NET Core MVC with Razor Views
-- **Session Management**: In-memory session storage
+- **Base de datos**: SQL Server
+- **Interfaz**: ASP.NET Core MVC con Vistas Razor
+- **Gestión de sesiones**: Almacenamiento en memoria
 
-## Architecture
+## Arquitectura
 
-The project follows an ASP.NET Core MVC pattern with partial service abstraction:
+El proyecto sigue un patrón ASP.NET Core MVC con abstracción parcial de servicios:
 
 ```
-Controllers → Services → DbContext → SQL Server
+Controladores → Servicios → DbContext → SQL Server
 ```
 
-- **Controllers**: Handle HTTP requests and responses
-- **Services**: Business logic layer (currently only PedidoService implemented)
-- **Data Access**: CatalogoWebContext (EF Core DbContext)
+- **Controladores**: Manejan las solicitudes y respuestas HTTP
+- **Services**: Capa de lógica de negocio (actualmente solo hay PedidoService implementado)
+- **Acceso a datos**: CatalogoWebContext (DbContext de EF Core)
 
-### Current State
+### Estado Actual
 
-- **1 Service with Interface**: `PedidoService` / `IPedidoService` (proper abstraction)
-- **5 Controllers with direct DbContext**: ProductosController, UsuariosController, CategoriasController, RolsController, HomeController
-- **1 Mixed Controller**: CarritoController (uses both DbContext and IPedidoService)
-- **1 Proper Controller**: PedidoController (uses IPedidoService)
+- **1 Servicio con Interfaz**: `PedidoService` / `IPedidoService` (abstracción correcta)
+- **5 Controladores con DbContext directo**: ProductosController, UsuariosController, CategoriasController, RolsController, HomeController
+- **1 Controlador Mixto**: CarritoController (usa tanto DbContext como IPedidoService)
+- **1 Controlador Correcto**: PedidoController (usa IPedidoService)
 
-This represents a **Clean Architecture violation** - controllers should not directly access DbContext.
+Esto representa una **violación de Arquitectura Limpia** - los controladores no deberían acceder directamente al DbContext.
 
-## Folder Structure
+## Estructura de Carpetas
 
 ```
 CatalogoWeb/
-├── Controllers/           # MVC Controllers (7 total)
+├── Controllers/           # Controladores MVC (7 en total)
 │   ├── HomeController.cs
 │   ├── ProductosController.cs
 │   ├── CategoriasController.cs
@@ -70,29 +70,29 @@ CatalogoWeb/
 └── CatalogoWeb.csproj
 ```
 
-## Key Entities
+## Entidades Principales
 
-| Entity | Description |
-|--------|-------------|
-| **Pedido** | Order with status tracking, payment info, and shipping details |
-| **PedidoDetalle** | Order line items with product info |
-| **Producto** | Product with price, stock, and category |
-| **Categoria** | Product category |
-| **Usuario** | User with role assignment |
-| **Rol** | User role (Admin, Customer, etc.) |
-| **CarritoItem** | Shopping cart item (session-based) |
-| **EstadoPedido** | Order status enum (8 states) |
+| Entidad | Descripción |
+|---------|-------------|
+| **Pedido** | Pedido con seguimiento de estado, información de pago y detalles de envío |
+| **PedidoDetalle** | Líneas de pedido con información del producto |
+| **Producto** | Producto con precio, stock y categoría |
+| **Categoria** | Categoría de productos |
+| **Usuario** | Usuario con asignación de rol |
+| **Rol** | Rol de usuario (Admin, Cliente, etc.) |
+| **CarritoItem** | Artículo del carrito de compras (basado en sesión) |
+| **EstadoPedido** | Enum de estado del pedido (8 estados) |
 
-## Setup Instructions
+## Instrucciones de Configuración
 
-### Prerequisites
+### Requisitos Previos
 
 - .NET 10.0 SDK
-- SQL Server (LocalDB or full instance)
+- SQL Server (LocalDB o instancia completa)
 
-### Database Setup
+### Configuración de la Base de Datos
 
-1. Update connection string in `appsettings.json`:
+1. Actualiza la cadena de conexión en `appsettings.json`:
 
 ```json
 {
@@ -102,57 +102,57 @@ CatalogoWeb/
 }
 ```
 
-2. Apply migrations:
+2. Aplica las migraciones:
 
 ```bash
 dotnet ef database update
 ```
 
-Or create initial migration:
+O crea la migración inicial:
 
 ```bash
 dotnet ef migrations add InitialCreate
 dotnet ef database update
 ```
 
-### Run the Application
+### Ejecutar la Aplicación
 
 ```bash
 dotnet run
 ```
 
-The application will be available at `https://localhost:5001` or `http://localhost:5000`.
+La aplicación estará disponible en `https://localhost:5001` o `http://localhost:5000`.
 
-### Build
+### Compilación
 
 ```bash
 dotnet build
 ```
 
-### Clean and Rebuild
+### Limpiar y Recompilar
 
 ```bash
 dotnet clean
 dotnet build
 ```
 
-## Features
+## Funcionalidades
 
-- Product catalog with category filtering
-- Shopping cart (session-based)
-- Order processing with payment gateway stub
-- Order status workflow (Pendiente → Pagado → EnPreparacion → Enviado → Entregado → Completado)
-- Email notification stubs (confirmación, envío, entrega)
-- User and role management
+- Catálogo de productos con filtrado por categoría
+- Carrito de compras (basado en sesión)
+- Procesamiento de pedidos con stub de pasarela de pago
+- Flujo de estado de pedido (Pendiente → Pagado → EnPreparacion → Enviado → Entregado → Completado)
+- Stubs de notificación por email (confirmación, envío, entrega)
+- Gestión de usuarios y roles
 
-## Known Issues
+## Problemas Conocidos
 
-- Controllers directly inject DbContext instead of using services (violates Clean Architecture)
-- Missing services: UsuarioService, ProductoService, CategoriaService, RolService
-- IPedidoService has too many methods (God Interface)
-- No repository pattern implementation
-- Email services are stubs that only record timestamps
+- Los controladores inyectan DbContext directamente en lugar de usar servicios (viola Arquitectura Limpia)
+- Servicios faltantes: UsuarioService, ProductoService, CategoriaService, RolService
+- IPedidoService tiene demasiados métodos (Interfaz Dios)
+- No hay implementación del patrón Repository
+- Los servicios de email son stubs que solo registran marcas de tiempo
 
-## Future Improvements
+## Mejoras Futuras
 
-See `docs/improvements.md` for prioritized recommendations.
+Consulta `docs/mejoras.md` para recomendaciones priorizadas.

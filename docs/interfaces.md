@@ -1,17 +1,17 @@
-# Interfaces Documentation
+# Documentación de Interfaces
 
-## Overview
+## Visión General
 
-This document details the existing interface `IPedidoService`, analyzes Interface Segregation Principle (ISP) violations, and provides recommendations for splitting into smaller, focused interfaces.
+Este documento detalla la interfaz existente `IPedidoService`, analiza las violaciones del Principio de Segregación de Interfaces (ISP) y proporciona recomendaciones para dividirla en interfaces más pequeñas y enfocadas.
 
-## Current IPedidoService Interface
+## Interfaz IPedidoService Actual
 
-**Location**: `Interfaces/IPedidoService.cs`
+**Ubicación**: `Interfaces/IPedidoService.cs`
 
 ```csharp
 public interface IPedidoService
 {
-    // Order lifecycle operations
+    // Operaciones del ciclo de vida del pedido
     Task<int> CrearPedidoAsync(CrearPedidoDto dto);
     Task<int> CancelarPedido(int pedidoId);
     Task<int> PagarPedido(int pedidoId);
@@ -19,17 +19,17 @@ public interface IPedidoService
     Task<List<Pedido>> ObtenerTodos();
     Task<Pedido?> ObtenerPorId(int id);
 
-    // Payment processing
+    // Procesamiento de pagos
     Task<ResultadoPagoDto> ProcesarPagoAsync(int pedidoId, DatosPagoDto datosPago);
     Task<int> RechazarPago(int pedidoId, string mensajeError);
 
-    // State transitions
+    // Transiciones de estado
     Task<int> MarcarEnPreparacion(int pedidoId);
     Task<int> MarcarEnviado(int pedidoId, string numeroTracking);
     Task<int> MarcarEntregado(int pedidoId);
     Task<int> MarcarCompletado(int pedidoId);
 
-    // Notifications (VICTIM OF ISP VIOLATION)
+    // Notificaciones (VÍCTIMA DE VIOLACIÓN ISP)
     Task<int> NotificarVendedor(int pedidoId);
     Task<int> EnviarEmailConfirmacion(int pedidoId);
     Task<int> EnviarEmailEnvio(int pedidoId);
@@ -38,59 +38,59 @@ public interface IPedidoService
 }
 ```
 
-**Total Methods**: 20
+**Total de Métodos**: 20
 
 ---
 
-## Interface Segregation Principle (ISP) Violations
+## Violaciones del Principio de Segregación de Interfaces (ISP)
 
-### What is ISP?
+### ¿Qué es el ISP?
 
-The Interface Segregation Principle states: "Clients should not be forced to depend on methods they do not use." Instead of one large interface, multiple smaller, focused interfaces are preferable.
+El Principio de Segregación de Interfaces establece: "Los clientes no deben verse forzados a depender de métodos que no utilizan." En lugar de una interfaz grande, es preferible tener múltiples interfaces más pequeñas y enfocadas.
 
-### Violations Identified
+### Violaciones Identificadas
 
-#### 1. God Interface (20 methods)
+#### 1. Interfaz Dios (20 métodos)
 
-The `IPedidoService` interface contains 20 methods covering multiple unrelated responsibilities:
+La interfaz `IPedidoService` contiene 20 métodos que cubren múltiples responsabilidades no relacionadas:
 
-- **Order Management**: 6 methods (create, cancel, pay, send, get all, get by id)
-- **Payment Processing**: 2 methods (process payment, reject payment)
-- **State Transitions**: 4 methods (mark in preparation, shipped, delivered, completed)
-- **Notifications**: 6 methods (notify seller, confirmation email, shipping email, delivery email, rating email)
-- **Email Tracking**: 2 methods (send confirmation, send shipping)
+- **Gestión de Pedidos**: 6 métodos (crear, cancelar, pagar, enviar, obtener todos, obtener por id)
+- **Procesamiento de Pagos**: 2 métodos (procesar pago, rechazar pago)
+- **Transiciones de Estado**: 4 métodos (marcar en preparación, enviado, entregado, completado)
+- **Notificaciones**: 6 métodos (notificar vendedor, email de confirmación, email de envío, email de entrega, email de valoración)
+- **Seguimiento por Email**: 2 métodos (enviar confirmación, enviar envío)
 
-#### 2. Notification Responsibility Leak
+#### 2. Filtración de Responsabilidad de Notificaciones
 
-The notification methods violate ISP because:
+Los métodos de notificación violan el ISP porque:
 
-- Any consumer of `IPedidoService` that only needs order CRUD operations is forced to implement or depend on notification functionality
-- A controller that just needs to create orders must also expose email-sending methods
-- The `PedidoService` implementation couples order business logic with email logic (lines 234-287 in `Service/PedidoService.cs`)
+- Cualquier consumidor de `IPedidoService` que solo necesita operaciones CRUD de pedidos se ve obligado a implementar o depender de funcionalidad de notificaciones
+- Un controlador que solo necesita crear pedidos también debe exponer métodos de envío de emails
+- La implementación de `PedidoService` acopla la lógica de negocio de pedidos con la lógica de emails (líneas 234-287 en `Service/PedidoService.cs`)
 
-#### 3. Tight Coupling Example
+#### 3. Ejemplo de Acoplamiento Estrecho
 
 ```csharp
-// A controller that only needs to create orders
+// Un controlador que solo necesita crear pedidos
 public class PedidoController : Controller
 {
     private readonly IPedidoService _pedidoService;
     
-    // Forces dependency on ALL 20 methods, including email notifications
-    // even if controller never sends emails
+    // Fuerza dependencia de TODOS los 20 métodos, incluyendo notificaciones por email
+    // incluso si el controlador nunca envía emails
 }
 ```
 
 ---
 
-## Recommendations for Interface Splitting
+## Recomendaciones para la División de Interfaces
 
-### Proposed Interface Architecture
+### Arquitectura de Interfaces Propuesta
 
-Split `IPedidoService` into focused, single-responsibility interfaces:
+Dividir `IPedidoService` en interfaces enfocadas con responsabilidad única:
 
 ```csharp
-// Core order operations (CRUD + lifecycle)
+// Operaciones principales de pedidos (CRUD + ciclo de vida)
 public interface IPedidoService
 {
     Task<int> CrearPedidoAsync(CrearPedidoDto dto);
@@ -99,7 +99,7 @@ public interface IPedidoService
     Task<Pedido?> ObtenerPorId(int id);
 }
 
-// Payment operations
+// Operaciones de pago
 public interface IPagoService
 {
     Task<int> PagarPedido(int pedidoId);
@@ -107,7 +107,7 @@ public interface IPagoService
     Task<int> RechazarPago(int pedidoId, string mensajeError);
 }
 
-// Order state transitions
+// Transiciones de estado del pedido
 public interface IEstadoPedidoService
 {
     Task<int> MarcarEnPreparacion(int pedidoId);
@@ -117,7 +117,7 @@ public interface IEstadoPedidoService
     Task<int> EnviarPedido(int pedidoId);
 }
 
-// Notification operations (SPLIT OFF)
+// Operaciones de notificaciones (SEPARADA)
 public interface INotificacionService
 {
     Task<int> NotificarVendedor(int pedidoId);
@@ -128,37 +128,37 @@ public interface INotificacionService
 }
 ```
 
-### Implementation Benefits
+### Beneficios de la Implementación
 
-| Aspect | Before | After |
-|--------|--------|-------|
-| Methods per interface | 20 | 4-6 |
-| Dependencies | Forced on all | Selective |
-| Testing | Complex mocking | Focused unit tests |
-| Coupling | High | Low |
-| SRP Compliance | Violated | Compliant |
+| Aspecto | Antes | Después |
+|---------|-------|---------|
+| Métodos por interfaz | 20 | 4-6 |
+| Dependencias | Forzadas a todas | Selectivas |
+| Pruebas | Simulación compleja | Pruebas unitarias enfocadas |
+| Acoplamiento | Alto | Bajo |
+| Cumplimiento SRP | Violado | Conforme |
 
-### Migration Strategy
+### Estrategia de Migración
 
-1. Create new smaller interfaces (`IPagoService`, `IEstadoPedidoService`, `INotificacionService`)
-2. Extract notification logic to separate `NotificacionService` class
-3. Update `PedidoService` to inject and delegate to specialized services
-4. Refactor controllers to depend only on needed interfaces
-5. Update DI registration in `Program.cs`
-
----
-
-## Files Affected
-
-- `Interfaces/IPedidoService.cs` - Split into multiple interfaces
-- `Service/PedidoService.cs` - Refactor to use composed services
-- `Program.cs` - Update DI registrations
-- Controllers using `IPedidoService` - Update dependencies
+1. Crear nuevas interfaces más pequeñas (`IPagoService`, `IEstadoPedidoService`, `INotificacionService`)
+2. Extraer la lógica de notificaciones a una clase separada `NotificacionService`
+3. Actualizar `PedidoService` para inyectar y delegar a servicios especializados
+4. Refactorizar los controladores para depender solo de las interfaces necesarias
+5. Actualizar el registro de DI en `Program.cs`
 
 ---
 
-## Related Documentation
+## Archivos Afectados
 
-- [dependency-flow.md](dependency-flow.md) - Dependency injection configuration
-- [improvements.md](improvements.md) - Prioritized recommendations
-- [clean-architecture-report.md](clean-architecture-report.md) - SOLID violations analysis
+- `Interfaces/IPedidoService.cs` - Dividir en múltiples interfaces
+- `Service/PedidoService.cs` - Refactorizar para usar servicios compuestos
+- `Program.cs` - Actualizar registros de DI
+- Controladores que usan `IPedidoService` - Actualizar dependencias
+
+---
+
+## Documentación Relacionada
+
+- [flujo-dependencias.md](flujo-dependencias.md) - Configuración de inyección de dependencias
+- [mejoras.md](mejoras.md) - Recomendaciones priorizadas
+- [reporte-clean-architecture.md](reporte-clean-architecture.md) - Análisis de violaciones SOLID

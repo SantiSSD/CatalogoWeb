@@ -1,14 +1,14 @@
-# Data Layer Documentation
+# Documentación de la Capa de Datos
 
-This document describes the Entity Framework Core configuration, entity relationships, and identifies the missing repository pattern.
+Este documento describe la configuración de Entity Framework Core, las relaciones entre entidades e identifica la falta del patrón Repository.
 
 ---
 
 ## CatalogoWebContext
 
-**Location**: `DataContext/CatalogoWebContext.cs`
+**Ubicación**: `DataContext/CatalogoWebContext.cs`
 
-### Configuration
+### Configuración
 
 ```csharp
 public class CatalogoWebContext : DbContext
@@ -27,12 +27,12 @@ public class CatalogoWebContext : DbContext
 }
 ```
 
-### DbSet Conventions
+### Convenciones de DbSet
 
-- Uses pluralized names (Usuario, Rol, Producto) - ASP.NET Core MVC convention
-- Mixed with singular names (Pedido, PedidoDetalle) - inconsistent naming
+- Utiliza nombres en plural (Usuario, Rol, Producto) - convención de ASP.NET Core MVC
+- Mezclado con nombres en singular (Pedido, PedidoDetalle) - nomenclatura inconsistente
 
-### Precision Configuration
+### Configuración de Precisión
 
 ```csharp
 modelBuilder.Entity<Pedido>()
@@ -50,9 +50,9 @@ modelBuilder.Entity<PedidoDetalle>()
 
 ---
 
-## Entity Relationships
+## Relaciones entre Entidades
 
-### 1. Producto → Categoria (Many-to-One)
+### 1. Producto → Categoria (Muchos a Uno)
 
 ```csharp
 modelBuilder.Entity<Producto>()
@@ -62,47 +62,47 @@ modelBuilder.Entity<Producto>()
     .OnDelete(DeleteBehavior.Restrict);
 ```
 
-**Configuration**:
-- One Categoria has many Productos
-- On delete: Restrict (prevents deleting category with products)
-- Navigation: Producto.Categoria, Categoria.Productos
+**Configuración**:
+- Una Categoria tiene muchos Productos
+- Al eliminar: Restrict (impide eliminar categoría con productos)
+- Navegación: Producto.Categoria, Categoria.Productos
 
-### 2. Pedido → Usuario (Many-to-One, Optional)
+### 2. Pedido → Usuario (Muchos a Uno, Opcional)
 
-**NOT CONFIGURED in OnModelCreating**
+**NO CONFIGURADO en OnModelCreating**
 
-The relationship exists in the model but is not explicitly configured:
+La relación existe en el modelo pero no está configurada explícitamente:
 ```csharp
 public int? UsuarioId { get; set; }
 public Usuario? Usuario { get; set; }
 ```
 
-This allows:
-- Guest checkout (UsuarioId = null)
-- Authenticated user orders
+Esto permite:
+- Compra como invitado (UsuarioId = null)
+- Pedidos de usuarios autenticados
 
-### 3. Pedido → PedidoDetalle (One-to-Many)
+### 3. Pedido → PedidoDetalle (Uno a Muchos)
 
-**NOT CONFIGURED in OnModelCreating**
+**NO CONFIGURADO en OnModelCreating**
 
-Implicit relationship via navigation:
+Relación implícita mediante navegación:
 ```csharp
 public List<PedidoDetalle> Detalles { get; set; }
 ```
 
-### 4. PedidoDetalle → Pedido (Many-to-One)
+### 4. PedidoDetalle → Pedido (Muchos a Uno)
 
-**NOT CONFIGURED in OnModelCreating**
+**NO CONFIGURADO en OnModelCreating**
 
-Implicit relationship:
+Relación implícita:
 ```csharp
 public int PedidoId { get; set; }
 public Pedido Pedido { get; set; }
 ```
 
-### 5. Usuario → Rol (Many-to-One)
+### 5. Usuario → Rol (Muchos a Uno)
 
-**NOT CONFIGURED in OnModelCreating**
+**NO CONFIGURADO en OnModelCreating**
 
 ```csharp
 public int RolId { get; set; }
@@ -111,25 +111,25 @@ public Rol Rol { get; set; } = null!;
 
 ---
 
-## Missing Relationship: PedidoDetalle → Producto
+## Relación Faltante: PedidoDetalle → Producto
 
-**NOT CONFIGURED and NOT PRESENT**
+**NO CONFIGURADO y NO PRESENTE**
 
 ```csharp
-// Missing in PedidoDetalle
+// Falta en PedidoDetalle
 public int ProductoId { get; set; }
 public Producto? Producto { get; set; }
 ```
 
-The ProductoId exists but there's no navigation property, requiring manual joins.
+El ProductoId existe pero no hay propiedad de navegación, requiriendo uniones manuales.
 
 ---
 
-## Relationship Diagram
+## Diagrama de Relaciones
 
 ```
 ┌─────────┐       ┌─────────┐       ┌─────────────┐
-│   Rol   │       │ Usuario │       │   Categoria │
+│   Rol   │       │ Usuario │       │  Categoria  │
 └────┬────┘       └────┬────┘       └──────┬──────┘
      │                 │                  │
      └────────┬────────┘                  │
@@ -139,32 +139,32 @@ The ProductoId exists but there's no navigation property, requiring manual joins
         │  Pedido │──────────────│  Producto   │
         └────┬────┘              └──────┬──────┘
              │                         │
-             │                   (no nav)
+             │                   (sin nav)
              ▼                         
-       ┌─────────────┐                 
-       │PedidoDetalle│                 
-       └─────────────┘                 
+        ┌─────────────┐                 
+        │PedidoDetalle│                 
+        └─────────────┘                 
 ```
 
 ---
 
-## Missing Repository Pattern
+## Patrón Repository Faltante
 
-### Current Architecture
-
-```
-Controllers → DbContext (directly)
-```
-
-### Recommended Architecture
+### Arquitectura Actual
 
 ```
-Controllers → Services → Repositories → DbContext
+Controladores → DbContext (directamente)
 ```
 
-### What Should Exist But Doesn't
+### Arquitectura Recomendada
 
-1. **IRepository\<TEntity\>** - Generic base interface
+```
+Controladores → Servicios → Repositorios → DbContext
+```
+
+### Lo Que Debería Existir Pero No Existe
+
+1. **IRepository\<TEntity\>** - Interfaz base genérica
    ```csharp
    public interface IRepository<T> where T : class
    {
@@ -176,7 +176,7 @@ Controllers → Services → Repositories → DbContext
    }
    ```
 
-2. **IPedidoRepository** - Order-specific operations
+2. **IPedidoRepository** - Operaciones específicas de pedidos
    ```csharp
    public interface IPedidoRepository
    {
@@ -186,7 +186,7 @@ Controllers → Services → Repositories → DbContext
    }
    ```
 
-3. **IProductoRepository** - Product operations
+3. **IProductoRepository** - Operaciones de productos
    ```csharp
    public interface IProductoRepository
    {
@@ -195,37 +195,37 @@ Controllers → Services → Repositories → DbContext
    }
    ```
 
-### Controllers Currently Using Direct DbContext
+### Controladores Que Utilizan DbContext Directamente
 
-| Controller | Direct DbContext | Should Have |
-|------------|------------------|-------------|
-| PedidoController | Yes | PedidoService |
-| CarritoController | Yes | CarritoService |
-| ProductosController | Yes | ProductoService |
-| CategoriasController | Yes | CategoriaService |
-| UsuariosController | Yes | UsuarioService |
-| RolsController | Yes | RolService |
-| HomeController | Yes | (none) |
-
----
-
-## Issues Identified
-
-1. **No explicit FK configurations** - Most relationships rely on EF Core conventions
-2. **Inconsistent OnModelConfiguring** - Only Producto→Categoria is explicitly configured
-3. **Missing cascade delete rules** - Not specified for any relationship
-4. **No soft deletes** - All deletes are hard deletes
-5. **No auditing** - No automatic timestamp or user tracking
-6. **Missing indexes** - No explicit indexes defined (Relies on FK indexes)
-7. **No connection string in Context** - Depends on DI configuration
+| Controlador | DbContext Directo | Debería Tener |
+|-------------|-------------------|---------------|
+| PedidoController | Sí | PedidoService |
+| CarritoController | Sí | CarritoService |
+| ProductosController | Sí | ProductoService |
+| CategoriasController | Sí | CategoriaService |
+| UsuariosController | Sí | UsuarioService |
+| RolsController | Sí | RolService |
+| HomeController | Sí | (ninguno) |
 
 ---
 
-## Recommendations
+## Problemas Identificados
 
-1. Explicitly configure all relationships in OnModelCreating
-2. Add cascade delete rules appropriate to each relationship
-3. Implement Repository pattern to abstract DbContext
-4. Add audit fields (CreatedAt, UpdatedAt, CreatedBy, UpdatedBy)
-5. Consider soft delete pattern
-6. Add explicit indexes for common queries
+1. **Sin configuraciones explícitas de FK** - La mayoría de las relaciones dependen de las convenciones de EF Core
+2. **OnModelConfiguring inconsistente** - Solo Producto→Categoria está configurado explícitamente
+3. **Faltan reglas de eliminación en cascada** - No especificadas para ninguna relación
+4. **Sin eliminaciones suaves** - Todas las eliminaciones son eliminaciones duras
+5. **Sin auditoría** - No hay seguimiento automático de fecha o usuario
+6. **Faltan índices** - No hay índices explícitos definidos (Depende de índices de FK)
+7. **Sin cadena de conexión en Context** - Depende de configuración de DI
+
+---
+
+## Recomendaciones
+
+1. Configurar explícitamente todas las relaciones en OnModelCreating
+2. Agregar reglas de eliminación en cascada apropiadas para cada relación
+3. Implementar el patrón Repository para abstraer DbContext
+4. Agregar campos de auditoría (CreatedAt, UpdatedAt, CreatedBy, UpdatedBy)
+5. Considerar el patrón de eliminación suave
+6. Agregar índices explícitos para consultas comunes

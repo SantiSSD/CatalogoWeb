@@ -1,14 +1,14 @@
-# DTOs Documentation
+# Documentación de DTOs
 
-This document describes the Data Transfer Objects used in CatalogoWeb and identifies usage inconsistencies.
+Este documento describe los Objetos de Transferencia de Datos utilizados en CatalogoWeb e identifica las inconsistencias de uso.
 
 ---
 
 ## 1. CrearPedidoDto
 
-**Location**: `Models/Dtos/CrearPedidoDto.cs`
+**Ubicación**: `Models/Dtos/CrearPedidoDto.cs`
 
-Used for creating new orders via API.
+Utilizado para crear nuevos pedidos a través de la API.
 
 ```csharp
 public class CrearPedidoDto
@@ -23,17 +23,17 @@ public class CrearPedidoDto
 }
 ```
 
-### Issues:
-- Uses nullable types for all fields except Items, but no validation distinguishes guest vs authenticated orders
-- No MetodoPago field - payment method must be handled separately
+### Problemas:
+- Utiliza tipos anulables para todos los campos excepto Items, pero no hay validación que distinga entre pedidos de invitados vs pedidos autenticados
+- No tiene campo MetodoPago - el método de pago debe manejarse por separado
 
 ---
 
 ## 2. ItemPedidoDto
 
-**Location**: `Models/Dtos/ItemPedidoDto.cs`
+**Ubicación**: `Models/Dtos/ItemPedidoDto.cs`
 
-Represents a single line item when creating an order.
+Representa una línea individual al crear un pedido.
 
 ```csharp
 public class ItemPedidoDto
@@ -43,18 +43,18 @@ public class ItemPedidoDto
 }
 ```
 
-### Issues:
-- Missing PrecioUnitario - price must be fetched from database
-- Missing NombreProducto - requires additional lookup
-- Tightly coupled to CrearPedidoDto - cannot be reused independently
+### Problemas:
+- Falta PrecioUnitario - el precio debe obtenerse de la base de datos
+- Falta NombreProducto - requiere búsqueda adicional
+- Fuertemente acoplado a CrearPedidoDto - no puede reutilizarse independientemente
 
 ---
 
 ## 3. DatosPagoDto
 
-**Location**: `Models/Dtos/DatosPagoDto.cs`
+**Ubicación**: `Models/Dtos/DatosPagoDto.cs`
 
-Contains raw payment card information.
+Contiene información sin procesar de la tarjeta de pago.
 
 ```csharp
 public class DatosPagoDto
@@ -68,18 +68,18 @@ public class DatosPagoDto
 }
 ```
 
-### Critical Security Issues:
-- **Stores raw credit card data** - CVV, card number, expiration stored directly
-- **PCI DSS violation** - Should never store or process raw card data
-- Should use payment gateway tokens instead
+### Problemas de Seguridad Críticos:
+- **Almacena datos de tarjeta de crédito sin procesar** - CVV, número de tarjeta, expiración almacenados directamente
+- **Violación de PCI DSS** - Nunca se debe almacenar o procesar datos de tarjeta sin procesar
+- Debería utilizar tokens de pasarela de pago en su lugar
 
 ---
 
 ## 4. ResultadoPagoDto
 
-**Location**: `Models/Dtos/ResultadoPagoDto.cs`
+**Ubicación**: `Models/Dtos/ResultadoPagoDto.cs`
 
-Response object for payment processing results.
+Objeto de respuesta para resultados del procesamiento de pago.
 
 ```csharp
 public class ResultadoPagoDto
@@ -92,55 +92,55 @@ public class ResultadoPagoDto
 
 ---
 
-## Inconsistent Usage Patterns
+## Patrones de Uso Inconsistentes
 
-### Pattern 1: CrearPedidoDto vs direct model binding
+### Patrón 1: CrearPedidoDto vs enlace directo a modelo
 
-**In PedidoController**:
-- Uses `CrearPedidoDto` as input for API endpoint
-- But also accepts `Pedido` model directly in other actions
+**En PedidoController**:
+- Utiliza `CrearPedidoDto` como entrada para el endpoint de API
+- Pero también acepta el modelo `Pedido` directamente en otras acciones
 
-**Example**:
+**Ejemplo**:
 ```csharp
-// API approach (correct)
+// Enfoque API (correcto)
 [HttpPost]
 public IActionResult Crear([FromBody] CrearPedidoDto crearPedidoDto)
 
-// MVC approach (inconsistent)
+// Enfoque MVC (inconsistente)
 [HttpPost]
 public IActionResult Create(Pedido pedido)
 ```
 
-### Pattern 2: Missing DTOs for responses
+### Patrón 2: Faltan DTOs para respuestas
 
-- No response DTOs defined
-- Controllers return raw entities (e.g., `return View(pedido)`)
-- No separation between internal models and API contracts
+- No hay DTOs de respuesta definidos
+- Los controladores devuelven entidades sin procesar (ej. `return View(pedido)`)
+- No hay separación entre modelos internos y contratos de API
 
-### Pattern 3: CarritoItem vs ItemPedidoDto duplication
+### Patrón 3: Duplicación de CarritoItem vs ItemPedidoDto
 
-Both represent line items with nearly identical structure:
+Ambos representan líneas de artículos con estructura casi idéntica:
 
 | CarritoItem | ItemPedidoDto |
 |-------------|---------------|
 | ProductoId | ProductoId |
-| NombreProducto | (missing) |
-| PrecioUnitario | (missing) |
+| NombreProducto | (falta) |
+| PrecioUnitario | (falta) |
 | Cantidad | Cantidad |
 
-CarritoItem is used for shopping cart session, ItemPedidoDto for order creation - no shared base type.
+CarritoItem se usa para la sesión del carrito de compras, ItemPedidoDto para la creación de pedidos - no hay tipo base compartido.
 
-### Pattern 4: DatosPagoDto exposed to controllers
+### Patrón 4: DatosPagoDto expuesto a controladores
 
-- Payment data flows through controllers instead of being handled by dedicated payment service
-- No separation between payment processing and order management
+- Los datos de pago fluyen a través de los controladores en lugar de ser manejados por un servicio de pago dedicado
+- No hay separación entre el procesamiento de pagos y la gestión de pedidos
 
 ---
 
-## Recommendations
+## Recomendaciones
 
-1. **Remove DatosPagoDto** - Replace with payment gateway token approach
-2. **Create response DTOs** - Separate API contracts from internal models
-3. **Unify line item representation** - Create shared CartItemDto or use inheritance
-4. **Add validation DTOs** - Separate input validation from business DTOs
-5. **Remove raw card data** - Implement proper payment tokenization
+1. **Eliminar DatosPagoDto** - Reemplazar con enfoque de token de pasarela de pago
+2. **Crear DTOs de respuesta** - Separar contratos de API de modelos internos
+3. **Unificar representación de líneas de artículos** - Crear CartItemDto compartido o usar herencia
+4. **Agregar DTOs de validación** - Separar validación de entrada de DTOs de negocio
+5. **Eliminar datos de tarjeta sin procesar** - Implementar tokenización de pago adecuada
